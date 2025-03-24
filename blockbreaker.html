@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <canvas id="canvas" height="400" width="500" style="background-color:rgb(0, 0, 0); border:2px solid black"></canvas>
+    <title>Block Breaker</title>
+    <link rel="icon" type="image/x-icon" href="C:\xampp\htdocs\xampp/block-breaker-logo">
+    <script>
+        var canvas = document.getElementById("canvas").getContext("2d");
+
+        var playerx = 200; 
+        var playery = 340; 
+
+        // Ball variables
+        var ballX = 200;
+        var ballY = 200;
+        var ballchangeX = 1.2;
+        var ballchangeY = 1.2;
+
+        // grid variables
+        var color = "red";
+        var blockwidth = 60;
+        var blockheight = 20;
+
+        // Array to hold block positions
+        var blocks = [
+            { x: 20, y: 20, exists: true },
+            { x: 100, y: 20, exists: true },
+            { x: 180, y: 20, exists: true },
+            { x: 260, y: 20, exists: true },
+            { x: 340, y: 20, exists: true },
+            { x: 420, y: 20, exists: true },
+            { x: 500, y: 20, exists: true },
+            { x: 20, y: 60, exists: true },
+            { x: 100, y: 60, exists: true },
+            { x: 180, y: 60, exists: true },
+            { x: 260, y: 60, exists: true },
+            { x: 340, y: 60, exists: true },
+            { x: 420, y: 60, exists: true },
+            { x: 500, y: 60, exists: true },
+            { x: 20, y: 100, exists: true },
+            { x: 100, y: 100, exists: true },
+            { x: 180, y: 100, exists: true },
+            { x: 260, y: 100, exists: true },
+            { x: 340, y: 100, exists: true },
+            { x: 420, y: 100, exists: true },
+            { x: 500, y: 100, exists: true },
+            { x: 20, y: 140, exists: true },
+            { x: 100, y: 140, exists: true },
+            { x: 180, y: 140, exists: true },
+            { x: 260, y: 140, exists: true },
+            { x: 340, y: 140, exists: true },
+            { x: 420, y: 140, exists: true },
+            { x: 500, y: 140, exists: true },
+        ];
+
+        function drawBlocks() {
+            let allBroken = true; // Flag to track if all blocks are broken
+        
+            for (let i = 0; i < blocks.length; i++) {
+                if (blocks[i].exists) {
+                    allBroken = false; // At least one block exists
+                    canvas.fillStyle = color;
+                    canvas.fillRect(blocks[i].x, blocks[i].y, blockwidth, blockheight);
+                }
+            }
+        
+            if (allBroken) {
+                canvas.fillStyle = color; // Set color for win message
+                canvas.font = "30px Arial";
+                const winMessage = "You Win!";
+                const messageX = 200; // X position for the message
+                const messageY = 200; // Y position for the message
+                canvas.fillText(winMessage, messageX, messageY);
+            }
+        }
+
+        function checkCollision() {
+            for (var i = 0; i < blocks.length; i++) {
+                if (blocks[i].exists) {
+                    if (ballX > blocks[i].x && ballX < blocks[i].x + blockwidth && 
+                        ballY > blocks[i].y && ballY < blocks[i].y + blockheight) {
+                        blocks[i].exists = false; // Mark block as destroyed
+                        ballchangeY = -ballchangeY; // Reverse ball direction
+                    }
+                }
+            }
+        }
+
+        function updateBall() {
+            // Update ball position
+            ballX += ballchangeX;
+            ballY += ballchangeY;
+        
+            // Bounce off left wall
+            if (ballX < 0) {
+                ballchangeX = -ballchangeX; // Reverse ball direction
+                ballX = 0; // Reset ball position to avoid going out of bounds
+            }
+        
+            // Bounce off right wall
+            if (ballX >= canvas.canvas.width) {
+                ballchangeX = -ballchangeX; // Reverse ball direction
+                ballX = canvas.canvas.width; // Reset ball position to avoid going out of bounds
+            }
+        
+            // Bounce off top wall
+            if (ballY < 0) {
+                ballchangeY = -ballchangeY; // Reverse ball direction
+                ballY = 0; // Reset ball position to avoid going out of bounds
+            }
+        
+            // Check for game over condition
+            if (ballY > canvas.canvas.height) {
+                canvas.fillText("Game Over", 200, 200);
+                return; 
+            }
+        
+            // Bounce off the player paddle
+            if (ballY >= playery && ballY <= playery + 10 && ballX >= playerx && ballX <= playerx + 100) {
+                ballchangeY = -ballchangeY;
+                ballY = playery;
+            }
+        }
+
+        function player() {
+            // Clear the canvas before drawing
+            canvas.clearRect(0, 0, canvas.canvas.width, canvas.canvas.height);
+            drawBlocks(); // Draw blocks
+            // Draw the player rectangle
+            canvas.fillStyle = "white";
+            canvas.fillRect(playerx, playery, 100, 10);
+            // Draw the ball
+            canvas.beginPath();
+            canvas.arc(ballX, ballY, 10, 0, Math.PI * 2);
+            canvas.fillStyle = "yellow";
+            canvas.fill();
+            canvas.closePath();
+        }
+
+        document.onmousemove = function(mouse) {
+            var rect = canvas.canvas.getBoundingClientRect();
+            playerx = mouse.clientX - rect.left - 50; // Center the paddle
+        };
+
+        function gameLoop() {
+            updateBall();
+            checkCollision();
+            player();
+            requestAnimationFrame(gameLoop); // Keep the loop going
+        }
+
+        gameLoop(); // Start the game loop
+    </script>
+</head>
+<body>
+</body>
+</html>
+
